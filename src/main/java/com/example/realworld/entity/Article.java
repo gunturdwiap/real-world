@@ -14,7 +14,6 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Article {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "CHAR(36)")

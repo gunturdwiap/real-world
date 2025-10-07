@@ -14,7 +14,6 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Tag {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "CHAR(36)")
