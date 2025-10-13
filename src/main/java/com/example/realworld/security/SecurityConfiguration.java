@@ -2,6 +2,7 @@ package com.example.realworld.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -23,7 +24,9 @@ public class SecurityConfiguration {
         return security
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> {
                     authorizationManagerRequestMatcherRegistry
-                            .requestMatchers("/auth/**").permitAll();
+                            .requestMatchers(HttpMethod.POST, "/api/users").permitAll();
+                    authorizationManagerRequestMatcherRegistry
+                            .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll();
                     authorizationManagerRequestMatcherRegistry
                             .anyRequest().authenticated();
                 })
