@@ -5,19 +5,23 @@ import com.example.realworld.dto.response.UserDTO;
 import com.example.realworld.dto.response.UserResponse;
 import com.example.realworld.entity.User;
 import com.example.realworld.security.CustomUserDetails;
+import com.example.realworld.security.JwtService;
 import com.example.realworld.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -26,87 +30,98 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class UserControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
+class UserControllerTest {
+
+    @MockitoBean
+    private JwtService jwtService;
 
     @MockitoBean
     private UserService userService;
 
     @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
-    private CustomUserDetails createMockUserDetails() {
-        User user = new User();
-        user.setId(UUID.randomUUID());
-        user.setEmail("john@example.com");
-        user.setPassword("password");
-        user.setUsername("john");
-        user.setBio("Initial bio");
-        user.setImage("https://image.url");
+    private CustomUserDetails currentUser;
+    private UpdateUserRequest updateRequest;
 
-        return new CustomUserDetails(user);
+    @BeforeEach
+    void setUp() {
+        currentUser = new CustomUserDetails(
+                User.builder()
+                        .id(UUID.randomUUID())
+                        .email("arthurmorgan@example.com")
+                        .username("arthur")
+                        .password("plaintext")
+                        .image("https://i.imgur.com/arthur.png")
+                        .bio("no")
+                        .build()
+        );
+
+        updateRequest = new UpdateUserRequest(
+                "johnmarston@example.com",
+                "john",
+                "verystrongpassword",
+                "https://i.imgur.com/john.png",
+                "yes"
+        );
+
+        var authentication = new UsernamePasswordAuthenticationToken(currentUser, null, currentUser.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    @AfterEach
+    void tearDown(){
+        SecurityContextHolder.clearContext();
     }
 
     @Test
-    void shouldReturnCurrentUserProfile() throws Exception {
-        CustomUserDetails mockUserDetails = createMockUserDetails();
+    void testGetUserSuccessfully() throws Exception {
+        // Arrange
+        var mockResponse = new UserResponse(
+                UserDTO.builder()
+                        .email(currentUser.getUsername())
+                        .username(currentUser.getUsername())
+                        .bio("Pizza lover")
+                        .image("https://i.imgur.com/jesse.png")
+                        .build()
+        );
 
-        UserDTO userDTO = UserDTO.builder()
-                .email("john@example.com")
-                .username("john")
-                .bio("Initial bio")
-                .image("https://image.url")
-                .token("fake-jwt-token")
-                .build();
+        when(userService.findByEmail(currentUser.getUsername()))
+                .thenReturn(mockResponse);
 
-        UserResponse mockResponse = new UserResponse(userDTO);
-
-        when(userService.findByEmail("john@example.com")).thenReturn(mockResponse);
-
-        mockMvc.perform(get("/api/user")
-                        .principal(mockUserDetails))
+        // Act & Assert
+        mockMvc.perform(get("/api/user"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.user.email").value("john@example.com"))
-                .andExpect(jsonPath("$.user.username").value("john"))
-                .andExpect(jsonPath("$.user.bio").value("Initial bio"))
-                .andExpect(jsonPath("$.user.image").value("https://image.url"))
-                .andExpect(jsonPath("$.user.token").value("fake-jwt-token"));
+                .andExpect(jsonPath("$.user.email").value(currentUser.getUsername()))
+                .andExpect(jsonPath("$.user.username").value(currentUser.getUsername()))
+                .andExpect(jsonPath("$.user.bio").value("Pizza lover"))
+                .andExpect(jsonPath("$.user.image").value("https://i.imgur.com/jesse.png"));
     }
 
     @Test
-    void shouldUpdateCurrentUserProfile() throws Exception {
-        CustomUserDetails mockUserDetails = createMockUserDetails();
+    void testUpdateUserSuccessfully() throws Exception {
+        var mockResponse = new UserResponse(
+                UserDTO.builder()
+                        .email(updateRequest.getEmail())
+                        .username(updateRequest.getUsername())
+                        .bio(updateRequest.getBio())
+                        .image(updateRequest.getImage())
+                        .build()
+        );
 
-        UpdateUserRequest updateRequest = UpdateUserRequest.builder()
-                .username("john_updated")
-                .email("john.updated@example.com")
-                .bio("Updated bio")
-                .image("https://new-image.url")
-                .build();
-
-        UserDTO updatedDTO = UserDTO.builder()
-                .username("john_updated")
-                .email("john.updated@example.com")
-                .bio("Updated bio")
-                .image("https://new-image.url")
-                .token("new-jwt-token")
-                .build();
-
-        UserResponse updatedResponse = new UserResponse(updatedDTO);
-
-        when(userService.update(Mockito.eq(1L), any(UpdateUserRequest.class)))
-                .thenReturn(updatedResponse);
+        when(userService.update(currentUser.getId(), updateRequest))
+                .thenReturn(mockResponse);
 
         mockMvc.perform(put("/api/user")
-                        .principal(mockUserDetails)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.user.username").value("john_updated"))
-                .andExpect(jsonPath("$.user.email").value("john.updated@example.com"))
-                .andExpect(jsonPath("$.user.bio").value("Updated bio"))
-                .andExpect(jsonPath("$.user.image").value("https://new-image.url"))
-                .andExpect(jsonPath("$.user.token").value("new-jwt-token"));
+                .andExpect(jsonPath("$.user.email").value(updateRequest.getEmail()))
+                .andExpect(jsonPath("$.user.username").value(updateRequest.getUsername()))
+                .andExpect(jsonPath("$.user.bio").value(updateRequest.getBio()))
+                .andExpect(jsonPath("$.user.image").value(updateRequest.getImage()));
     }
 }
