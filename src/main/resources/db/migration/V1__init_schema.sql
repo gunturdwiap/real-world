@@ -10,6 +10,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE followers (
+    id CHAR(36) NOT NULL PRIMARY KEY,
     follower_id CHAR(36) NOT NULL,
     followee_id CHAR(36) NOT NULL,
     PRIMARY KEY (follower_id, followee_id),
