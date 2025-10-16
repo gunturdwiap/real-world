@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -51,12 +52,9 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "article_id"))
     private List<Article> favoriteArticles;
 
-    @ManyToMany
-    @JoinTable(name = "followers",
-            joinColumns = @JoinColumn(name = "follower_id"),
-            inverseJoinColumns = @JoinColumn(name = "followee_id"))
-    private List<User> followers;
+    @OneToMany(mappedBy = "follower")
+    private Set<Follow> following;
 
-    @ManyToMany(mappedBy = "followers")
-    private List<User> followee;
+    @OneToMany(mappedBy = "followee")
+    private Set<Follow> followers;
 }
