@@ -19,6 +19,9 @@ public class Article {
     @Column(columnDefinition = "CHAR(36)")
     private UUID id;
 
+    @Column(name = "author_id", nullable = false)
+    private UUID authorId;
+
     @Column(nullable = false)
     private String title;
 
@@ -45,14 +48,11 @@ public class Article {
     private List<Comment> comments;
 
     @ManyToMany
-    @JoinTable(name = "article_tag",
+    @JoinTable(name = "articles_tags",
             joinColumns = @JoinColumn(name = "article_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
-    private List<Tag> tags;
+    private Set<Tag> tags;
 
-    @ManyToMany
-    @JoinTable(name = "article_user",
-            joinColumns = @JoinColumn(name = "article_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<User> favoritedBy;
+    @OneToMany(mappedBy = "article")
+    private Set<ArticleFavorite> favoritedBy;
 }
