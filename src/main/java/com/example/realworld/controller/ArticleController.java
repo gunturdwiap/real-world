@@ -8,6 +8,7 @@ import com.example.realworld.dto.response.MultipleArticleResponse;
 import com.example.realworld.entity.User;
 import com.example.realworld.security.CustomUserDetails;
 import com.example.realworld.service.ArticleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -60,7 +61,7 @@ public class ArticleController {
     }
 
     @PostMapping
-    public ResponseEntity<ArticleResponse> store(@RequestBody StoreArticleRequest request,
+    public ResponseEntity<ArticleResponse> store(@Valid @RequestBody StoreArticleRequest request,
                                                  @AuthenticationPrincipal CustomUserDetails userDetails){
         ArticleResponse response = articleService.store(userDetails.getUser(), request);
 
@@ -69,7 +70,7 @@ public class ArticleController {
 
     @PutMapping("/{slug}")
     public ResponseEntity<ArticleResponse> update(@PathVariable String slug,
-                                                  @RequestBody UpdateArticleRequest request,
+                                                  @Valid @RequestBody UpdateArticleRequest request,
                                                   @AuthenticationPrincipal CustomUserDetails userDetails){
 
         ArticleResponse response = articleService.update(userDetails.getUser(), slug, request);
