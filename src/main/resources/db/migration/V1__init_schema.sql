@@ -10,7 +10,6 @@ CREATE TABLE users (
 );
 
 CREATE TABLE followers (
-    id CHAR(36) NOT NULL PRIMARY KEY,
     follower_id CHAR(36) NOT NULL,
     followee_id CHAR(36) NOT NULL,
     PRIMARY KEY (follower_id, followee_id),
@@ -30,7 +29,7 @@ CREATE TABLE articles (
     FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE article_user (
+CREATE TABLE articles_users (
     article_id CHAR(36) NOT NULL,
     user_id CHAR(36) NOT NULL,
     PRIMARY KEY (article_id, user_id),
@@ -54,7 +53,7 @@ CREATE TABLE tags (
     name VARCHAR(100) NOT NULL UNIQUE
 );
 
-CREATE TABLE article_tag (
+CREATE TABLE articles_tags (
     article_id CHAR(36) NOT NULL,
     tag_id CHAR(36) NOT NULL,
     PRIMARY KEY (article_id, tag_id),
