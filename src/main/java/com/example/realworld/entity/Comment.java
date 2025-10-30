@@ -20,6 +20,12 @@ public class Comment {
     @Column(columnDefinition = "CHAR(36)")
     private UUID id;
 
+    @Column(name = "article_id", nullable = false)
+    private UUID articleId;
+
+    @Column(name = "author_id", nullable = false)
+    private UUID authorId;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String body;
 
