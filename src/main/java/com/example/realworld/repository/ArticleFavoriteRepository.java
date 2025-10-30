@@ -9,11 +9,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ArticleFavoriteRepository extends JpaRepository<ArticleFavorite, ArticleFavoriteId> {
     boolean existsByUserAndArticle(User user, Article article);
-    void deleteByUserAndArticle(User user, Article article);
     int countByArticle(Article article);
 
     @Query("SELECT af.article.id FROM ArticleFavorite af " +
@@ -23,5 +23,9 @@ public interface ArticleFavoriteRepository extends JpaRepository<ArticleFavorite
     @Query("SELECT af.article.id AS articleId, COUNT(af.user.id) AS count " +
             "FROM ArticleFavorite af WHERE af.article.id IN :articleIds GROUP BY af.article.id")
     List<Object[]> countFavoritesByArticleIds(@Param("articleIds") List<UUID> articleIds);
+
+    boolean existsByArticleAndUser(Article article, User user);
+
+    Optional<ArticleFavorite> findByArticleAndUser(Article article, User user);
 }
 
