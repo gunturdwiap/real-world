@@ -29,7 +29,7 @@ public class JwtFilter extends OncePerRequestFilter {
 //        Check if token exists
         String authHeader = request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")){
+        if (authHeader == null || !authHeader.startsWith("Token ")){
             filterChain.doFilter(request, response);
             return;
         }

@@ -79,26 +79,12 @@ class UserControllerTest {
 
     @Test
     void testGetUserSuccessfully() throws Exception {
-        // Arrange
-        var mockResponse = new UserResponse(
-                UserDTO.builder()
-                        .email(currentUser.getUsername())
-                        .username(currentUser.getUsername())
-                        .bio("Pizza lover")
-                        .image("https://i.imgur.com/jesse.png")
-                        .build()
-        );
-
-        when(userService.findByEmail(currentUser.getUsername()))
-                .thenReturn(mockResponse);
-
-        // Act & Assert
         mockMvc.perform(get("/api/user"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.user.email").value(currentUser.getUsername()))
-                .andExpect(jsonPath("$.user.username").value(currentUser.getUsername()))
-                .andExpect(jsonPath("$.user.bio").value("Pizza lover"))
-                .andExpect(jsonPath("$.user.image").value("https://i.imgur.com/jesse.png"));
+                .andExpect(jsonPath("$.user.email").value(currentUser.getUser().getEmail()))
+                .andExpect(jsonPath("$.user.username").value(currentUser.getUser().getUsername()))
+                .andExpect(jsonPath("$.user.bio").value(currentUser.getUser().getBio()))
+                .andExpect(jsonPath("$.user.image").value(currentUser.getUser().getImage()));
     }
 
     @Test
@@ -112,7 +98,7 @@ class UserControllerTest {
                         .build()
         );
 
-        when(userService.update(currentUser.getId(), updateRequest))
+        when(userService.update(currentUser.getUser(), updateRequest))
                 .thenReturn(mockResponse);
 
         mockMvc.perform(put("/api/user")

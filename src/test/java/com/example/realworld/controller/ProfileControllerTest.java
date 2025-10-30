@@ -78,7 +78,7 @@ class ProfileControllerTest {
     @Test
     void testGetProfileSuccessfully() throws Exception {
         ProfileResponse mockResponse = buildMockResponse(false);
-        Mockito.when(profileService.findProfile(eq("javier"), any(CustomUserDetails.class)))
+        Mockito.when(profileService.findProfile(any(User.class), eq("javier")))
                 .thenReturn(mockResponse);
 
         mockMvc.perform(get(BASE_URL)
@@ -95,7 +95,7 @@ class ProfileControllerTest {
     @WithMockUser
     void testFollowSuccessfully() throws Exception {
         ProfileResponse mockResponse = buildMockResponse(true);
-        Mockito.when(profileService.follow(eq("javier"), any(CustomUserDetails.class)))
+        Mockito.when(profileService.follow(any(User.class), eq("javier")))
                 .thenReturn(mockResponse);
 
         mockMvc.perform(post(BASE_URL + "/follow")
@@ -109,7 +109,7 @@ class ProfileControllerTest {
     @WithMockUser
     void testUnfollowSuccessfully() throws Exception {
         ProfileResponse mockResponse = buildMockResponse(false);
-        Mockito.when(profileService.unfollow(eq("javier"), any(CustomUserDetails.class)))
+        Mockito.when(profileService.unfollow(any(User.class), eq("javier")))
                 .thenReturn(mockResponse);
 
         mockMvc.perform(delete(BASE_URL + "/follow")

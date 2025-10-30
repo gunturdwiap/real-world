@@ -160,7 +160,6 @@ class ArticleControllerTest {
                 .andExpect(jsonPath("$.article.title").value("New Article"));
     }
 
-    // 🧪 PUT /api/articles/{slug}
     @Test
     void testUpdateArticleSuccessfully() throws Exception {
         var requestJson = """

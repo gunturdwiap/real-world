@@ -7,6 +7,7 @@ import com.example.realworld.entity.User;
 import com.example.realworld.repository.FollowRepository;
 import com.example.realworld.repository.UserRepository;
 import com.example.realworld.security.CustomUserDetails;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +17,12 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
 
-    public ProfileResponse findProfile(String username, CustomUserDetails userDetails) {
+    public ProfileResponse findProfile(User currentUser, String username) {
         User targetUser = userRepository.findByUsername(username)
-                .orElseThrow();
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         boolean isFollowing = false;
-        if (userDetails != null && !userDetails.getId().equals(targetUser.getId())) {
-            User currentUser = userRepository.findById(userDetails.getId())
-                    .orElseThrow();
-
+        if (currentUser != null && !currentUser.getId().equals(targetUser.getId())) {
             isFollowing = followRepository.existsByFollowerAndFollowee(currentUser, targetUser);
         }
 
@@ -36,12 +34,9 @@ public class ProfileService {
                 .build());
     }
 
-    public ProfileResponse follow(String username, CustomUserDetails userDetails){
+    public ProfileResponse follow(User currentUser, String username){
         User targetUser = userRepository.findByUsername(username)
-                .orElseThrow();
-
-        User currentUser = userRepository.findById(userDetails.getId())
-                .orElseThrow();
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         if (currentUser.getId().equals(targetUser.getId())) {
             throw new IllegalArgumentException("You cannot follow yourself");
@@ -62,12 +57,9 @@ public class ProfileService {
                 .build());
     }
 
-    public ProfileResponse unfollow(String username, CustomUserDetails userDetails){
+    public ProfileResponse unfollow(User currentUser, String username){
         User targetUser = userRepository.findByUsername(username)
-                .orElseThrow();
-
-        User currentUser = userRepository.findById(userDetails.getId())
-                .orElseThrow();
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         followRepository.deleteByFollowerAndFollowee(currentUser, targetUser);
 

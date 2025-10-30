@@ -1,6 +1,7 @@
 package com.example.realworld.controller;
 
 import com.example.realworld.dto.request.UpdateUserRequest;
+import com.example.realworld.dto.response.UserDTO;
 import com.example.realworld.dto.response.UserResponse;
 import com.example.realworld.security.CustomUserDetails;
 import com.example.realworld.service.UserService;
@@ -18,16 +19,16 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<UserResponse> get(@AuthenticationPrincipal UserDetails userDetails){
-        UserResponse userResponse = userService.findByEmail(userDetails.getUsername());
+    public ResponseEntity<UserResponse> get(@AuthenticationPrincipal CustomUserDetails userDetails){
+        UserDTO userDTO = UserDTO.fromEntity(userDetails.getUser());
 
-        return ResponseEntity.ok(userResponse);
+        return ResponseEntity.ok(new UserResponse(userDTO));
     }
 
     @PutMapping
     public ResponseEntity<UserResponse> update(@AuthenticationPrincipal CustomUserDetails currentUser,
                                                @Valid @RequestBody UpdateUserRequest updateUserRequest){
-        UserResponse userResponse = userService.update(currentUser.getId(), updateUserRequest);
+        UserResponse userResponse = userService.update(currentUser.getUser(), updateUserRequest);
 
         return ResponseEntity.ok(userResponse);
     }

@@ -22,13 +22,20 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity security, JwtFilter jwtFilter) throws Exception {
         return security
-                .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> {
-                    authorizationManagerRequestMatcherRegistry
-                            .requestMatchers(HttpMethod.POST, "/api/users").permitAll();
-                    authorizationManagerRequestMatcherRegistry
-                            .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll();
-                    authorizationManagerRequestMatcherRegistry
-                            .anyRequest().authenticated();
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers(HttpMethod.POST, "/api/users").permitAll();
+                    auth.requestMatchers(HttpMethod.POST, "/api/users/login").permitAll();
+
+                    auth.requestMatchers(HttpMethod.GET, "/api/profiles/*").permitAll();
+
+                    auth.requestMatchers(HttpMethod.GET, "/api/articles").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/api/articles/*").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/api/articles/*/comments").permitAll();
+
+                    auth.requestMatchers(HttpMethod.GET, "/api/tags").permitAll();
+
+                    auth.anyRequest().authenticated();
+
                 })
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> {
                     httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS);

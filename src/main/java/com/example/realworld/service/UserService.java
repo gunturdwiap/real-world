@@ -25,10 +25,7 @@ public class UserService {
         return new UserResponse(UserDTO.fromEntity(user));
     }
 
-    public UserResponse update(UUID id, UpdateUserRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow();
-
+    public UserResponse update(User user, UpdateUserRequest request) {
         user.setBio(request.getBio().isEmpty() ? user.getBio() : request.getBio());
         user.setEmail(request.getEmail().isEmpty() ? user.getEmail() : request.getEmail());
         user.setImage(request.getImage().isEmpty() ? user.getImage() : request.getImage());
